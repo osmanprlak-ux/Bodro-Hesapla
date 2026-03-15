@@ -5,313 +5,161 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Otel Çalışan Maaş Hesaplama</title>
 <style>
-:root {
-  --color-background-primary: #ffffff;
-  --color-background-secondary: #f5f5f0;
-  --color-background-info: #E6F1FB;
-  --color-text-primary: #1a1a1a;
-  --color-text-secondary: #6b6b6b;
-  --color-text-tertiary: #999999;
-  --color-text-info: #185FA5;
-  --color-border-tertiary: rgba(0,0,0,0.15);
-  --color-border-secondary: rgba(0,0,0,0.3);
-  --color-border-info: #85B7EB;
-  --border-radius-md: 8px;
-  --border-radius-lg: 12px;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'SF Mono', 'Fira Code', monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background-primary: #1a1a1a;
-    --color-background-secondary: #2a2a2a;
-    --color-background-info: #042C53;
-    --color-text-primary: #e8e8e8;
-    --color-text-secondary: #a0a0a0;
-    --color-text-tertiary: #666666;
-    --color-text-info: #85B7EB;
-    --color-border-tertiary: rgba(255,255,255,0.15);
-    --color-border-secondary: rgba(255,255,255,0.3);
-    --color-border-info: #378ADD;
-  }
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-sans); color: var(--color-text-primary); background: var(--color-background-primary); padding: 1.5rem; max-width: 700px; margin: 0 auto; }
-h1 { font-size: 22px; font-weight: 500; margin-bottom: 1.5rem; }
-.section { margin-bottom: 1.5rem; }
-.section-title { font-size: 16px; font-weight: 500; margin-bottom: 12px; }
-.info-badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); background: var(--color-background-info); color: var(--color-text-info); margin-left: 8px; }
-.row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
-.row label { font-size: 14px; color: var(--color-text-secondary); min-width: 180px; }
-input[type=number], select {
-  padding: 8px 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary);
-  font-family: var(--font-sans); font-size: 14px; background: var(--color-background-primary); color: var(--color-text-primary);
-}
-input[type=number] { width: 120px; }
-input[type=number]:focus, select:focus { outline: none; border-color: var(--color-border-info); box-shadow: 0 0 0 2px rgba(56,138,221,0.2); }
-.calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 16px; }
-.cal-header { font-size: 11px; color: var(--color-text-secondary); text-align: center; padding: 4px 0; }
-.day-cell { aspect-ratio: 1; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; transition: all 0.15s; min-height: 38px; user-select: none; }
-.day-cell:hover { border-color: var(--color-border-secondary); transform: scale(1.05); }
-.day-cell .day-num { font-size: 12px; font-weight: 500; }
-.day-cell .day-tag { font-size: 8px; margin-top: 1px; font-weight: 500; }
-.day-cell.type-normal { background: var(--color-background-primary); }
-.day-cell.type-fazla { background: #E6F1FB; }
-.day-cell.type-tatil { background: #FAECE7; }
-.day-cell.type-izin { background: #EAF3DE; }
-.day-cell.type-off { background: var(--color-background-secondary); color: var(--color-text-tertiary); }
-.day-cell.empty { border: none; cursor: default; }
-.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
-.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-secondary); }
-.legend-dot { width: 12px; height: 12px; border-radius: 3px; }
-.result-card { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 10px; }
-.result-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 14px; }
-.result-row.sub { padding-left: 16px; color: var(--color-text-secondary); font-size: 13px; }
-.result-row.total { border-top: 0.5px solid var(--color-border-secondary); margin-top: 6px; padding-top: 10px; font-weight: 500; font-size: 16px; }
-.result-val { font-weight: 500; }
-.result-val.positive { color: #1D9E75; }
-.result-val.negative { color: #E24B4A; }
-.step-nav { display: flex; gap: 8px; margin-bottom: 1.5rem; }
-.step-btn { padding: 8px 20px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; cursor: pointer; font-size: 14px; font-family: var(--font-sans); color: var(--color-text-secondary); transition: all 0.15s; }
-.step-btn:hover { background: var(--color-background-secondary); }
-.step-btn.active { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); }
-.step-content { display: none; }
-.step-content.active { display: block; }
-.tip { font-size: 12px; color: var(--color-text-secondary); background: var(--color-background-secondary); padding: 8px 12px; border-radius: var(--border-radius-md); margin-top: 8px; line-height: 1.5; }
-.formula-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 14px; font-family: var(--font-mono); font-size: 13px; margin: 8px 0; line-height: 1.6; color: var(--color-text-primary); }
-.highlight { color: #185FA5; font-weight: 500; }
-.mode-toggle { display: flex; border-radius: var(--border-radius-md); overflow: hidden; border: 0.5px solid var(--color-border-secondary); margin-bottom: 12px; }
-.mode-toggle button { flex: 1; padding: 8px 16px; border: none; background: transparent; cursor: pointer; font-size: 13px; font-family: var(--font-sans); color: var(--color-text-secondary); transition: all 0.15s; }
-.mode-toggle button.active { background: var(--color-background-info); color: var(--color-text-info); }
-@media (prefers-color-scheme: dark) {
-  .day-cell.type-fazla { background: #042C53; color: #B5D4F4; }
-  .day-cell.type-tatil { background: #4A1B0C; color: #F5C4B3; }
-  .day-cell.type-izin { background: #173404; color: #C0DD97; }
-  .highlight { color: #85B7EB; }
-}
+:root{--bg1:#fff;--bg2:#f5f5f0;--bg3:#eeeee8;--t1:#1a1a1a;--t2:#6b6b6b;--t3:#999;--bl:rgba(0,0,0,.1);--bm:rgba(0,0,0,.2);--ac:#185FA5;--ab:#E6F1FB;--at:#0C447C;--gn:#1D9E75;--rd:#E24B4A;--fb:#E6F1FB;--tb:#FAECE7;--ib:#EAF3DE;--r:8px;--rl:12px;--f:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;--m:'SF Mono','Fira Code',monospace}
+@media(prefers-color-scheme:dark){:root{--bg1:#1a1a1a;--bg2:#2a2a2a;--bg3:#333;--t1:#e8e8e8;--t2:#aaa;--t3:#777;--bl:rgba(255,255,255,.1);--bm:rgba(255,255,255,.2);--ac:#85B7EB;--ab:#042C53;--at:#B5D4F4;--fb:#042C53;--tb:#4A1B0C;--ib:#173404}}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--f);color:var(--t1);background:var(--bg3);min-height:100vh;display:flex;justify-content:center;padding:2rem 1rem}.ctn{max-width:680px;width:100%}h1{font-size:22px;font-weight:500;margin-bottom:1.5rem}.sec{margin-bottom:1.5rem}.st{font-size:16px;font-weight:500;margin-bottom:12px}.bdg{display:inline-block;font-size:11px;padding:2px 8px;border-radius:var(--r);background:var(--ab);color:var(--at);margin-left:8px}.row{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}.row label{font-size:14px;color:var(--t2);min-width:180px}input[type=number],select{padding:8px 12px;border-radius:var(--r);border:.5px solid var(--bm);font-family:var(--f);font-size:14px;background:var(--bg1);color:var(--t1);outline:none}input[type=number]:focus,select:focus{border-color:var(--ac)}input[type=number]{width:120px}.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}.ch{font-size:11px;color:var(--t2);text-align:center;padding:4px 0}.dc{aspect-ratio:1;border-radius:var(--r);border:.5px solid var(--bl);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:all .15s;min-height:38px;background:var(--bg1)}.dc:hover{border-color:var(--bm)}.dc .dn{font-size:12px;font-weight:500}.dc .dt{font-size:8px;margin-top:1px;font-weight:500}.dc.t-n{background:var(--bg1)}.dc.t-f{background:var(--fb)}.dc.t-t{background:var(--tb)}.dc.t-i{background:var(--ib)}.dc.t-o{background:var(--bg2);color:var(--t3)}.dc.empty{border:none;cursor:default;background:transparent}.leg{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}.li{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2)}.ld{width:12px;height:12px;border-radius:3px}.rc{background:var(--bg2);border-radius:var(--rl);padding:1rem 1.25rem;margin-bottom:10px}.rr{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:14px}.rr.sub{padding-left:16px;color:var(--t2);font-size:13px}.rr.tot{border-top:.5px solid var(--bm);margin-top:6px;padding-top:10px;font-weight:500;font-size:16px}.rv{font-weight:500}.rv.pos{color:var(--gn)}.rv.neg{color:var(--rd)}.sn{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}.sb{padding:8px 18px;border-radius:var(--r);border:.5px solid var(--bm);background:transparent;cursor:pointer;font-size:13px;font-family:var(--f);color:var(--t2);transition:all .15s}.sb:hover{background:var(--bg2)}.sb.act{background:var(--ab);color:var(--at);border-color:var(--ac)}.scn{display:none}.scn.act{display:block}.tip{font-size:12px;color:var(--t2);background:var(--bg2);padding:8px 12px;border-radius:var(--r);margin-top:8px;line-height:1.5}.fbx{background:var(--bg2);border-radius:var(--r);padding:12px 14px;font-family:var(--m);font-size:12px;margin:8px 0;line-height:2}.hl{color:var(--ac);font-weight:500}.arw{text-align:center;font-size:18px;color:var(--t3);padding:4px 0}.mtg{display:flex;border-radius:var(--r);border:.5px solid var(--bm);overflow:hidden;margin-bottom:16px}.mb{flex:1;padding:10px 12px;border:none;background:transparent;cursor:pointer;font-family:var(--f);font-size:13px;color:var(--t2);transition:all .15s}.mb.act{background:var(--ab);color:var(--at)}.nc{border:2px solid var(--ac)}
 </style>
 </head>
 <body>
-
+<div class="ctn">
 <h1>Otel Çalışan Maaş Hesaplama</h1>
+<div class="mtg"><button class="mb act" id="mN" onclick="setMode('net')">Net maaş gir</button><button class="mb" id="mB" onclick="setMode('brut')">Brüt maaş gir</button></div>
+<div class="sn"><button class="sb act" onclick="showStep(0)">1. Temel bilgiler</button><button class="sb" onclick="showStep(1)">2. Takvim girişi</button><button class="sb" onclick="showStep(2)">3. Hesaplama</button></div>
 
-<div class="step-nav">
-  <button class="step-btn active" onclick="showStep(0)">1. Temel bilgiler</button>
-  <button class="step-btn" onclick="showStep(1)">2. Takvim girişi</button>
-  <button class="step-btn" onclick="showStep(2)">3. Hesaplama</button>
-</div>
+<div id="s0" class="scn act"><div class="sec"><div class="st">Çalışan bilgileri</div><div class="row"><label id="mL">Net maaş (TL)</label><input type="number" id="mI" value="17002" step="100" onchange="recalc()"></div><div class="row"><label>Yıl / Ay</label><select id="sY" onchange="buildCal();recalc();"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select><select id="sM" onchange="buildCal();recalc();"><option value="0">Ocak</option><option value="1">Şubat</option><option value="2">Mart</option><option value="3">Nisan</option><option value="4">Mayıs</option><option value="5">Haziran</option><option value="6">Temmuz</option><option value="7">Ağustos</option><option value="8">Eylül</option><option value="9">Ekim</option><option value="10">Kasım</option><option value="11">Aralık</option></select></div><div class="tip" id="mT">Günlük net ücret = net maaş / 30. Ek ödemeler bu günlük ücret üzerinden hesaplanır. Resmi tatiller ve bayramlar takvimde otomatik işaretlenir.</div></div></div>
 
-<div id="step0" class="step-content active">
-  <div class="section">
-    <div class="section-title">Hesaplama yöntemi</div>
-    <div class="mode-toggle">
-      <button id="modeNet" class="active" onclick="setMode('net')">Net maaş gir</button>
-      <button id="modeBrut" onclick="setMode('brut')">Brüt maaş gir</button>
-    </div>
-    <div class="row">
-      <label id="maasLabel">Net maaş (TL)</label>
-      <input type="number" id="maasInput" value="17002" step="100" onchange="recalc()">
-    </div>
-    <div class="row">
-      <label>Yıl / ay</label>
-      <select id="selYear" onchange="buildCalendar(); recalc();">
-        <option value="2025">2025</option>
-        <option value="2026" selected>2026</option>
-      </select>
-      <select id="selMonth" onchange="buildCalendar(); recalc();">
-        <option value="0">Ocak</option><option value="1">Şubat</option><option value="2">Mart</option>
-        <option value="3">Nisan</option><option value="4">Mayıs</option><option value="5">Haziran</option>
-        <option value="6">Temmuz</option><option value="7">Ağustos</option><option value="8">Eylül</option>
-        <option value="9">Ekim</option><option value="10">Kasım</option><option value="11">Aralık</option>
-      </select>
-    </div>
-    <div id="brutFromNet" class="tip"></div>
-  </div>
-</div>
+<div id="s1" class="scn"><div class="sec"><div class="st">Aylık takvim <span class="bdg">Tıklayarak değiştirin</span></div><div class="leg"><div class="li"><div class="ld" style="background:var(--bg1);border:.5px solid var(--bl)"></div>Normal</div><div class="li"><div class="ld" style="background:var(--fb)"></div>F.Mesai</div><div class="li"><div class="ld" style="background:var(--tb)"></div>R.Tatil</div><div class="li"><div class="ld" style="background:var(--ib)"></div>H.İzin</div><div class="li"><div class="ld" style="background:var(--bg2)"></div>Yok</div></div><div id="cG" class="cal"></div><div id="tatilInfo" style="font-size:12px;color:var(--t2);margin-bottom:12px"></div><div class="row" style="margin-top:8px"><label>Fazla mesai saat (toplam)</label><input type="number" id="fS" value="0" min="0" step="1" onchange="recalc()"></div><div class="tip">Resmi tatiller ve bayramlar otomatik işaretlendi. İstediğiniz günü tıklayarak değiştirebilirsiniz.</div></div></div>
 
-<div id="step1" class="step-content">
-  <div class="section">
-    <div class="section-title">Aylık takvim <span class="info-badge">Günlere tıklayarak tür değiştirin</span></div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);"></div>Normal mesai</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#E6F1FB;"></div>Fazla mesai</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#FAECE7;"></div>Resmi tatil</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#EAF3DE;"></div>Haftalık izin</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--color-background-secondary);"></div>Çalışmadı</div>
-    </div>
-    <div id="calendarGrid" class="calendar"></div>
-    <div class="row" style="margin-top:8px;">
-      <label>Fazla mesai saat (toplam)</label>
-      <input type="number" id="fazlaSaat" value="0" min="0" step="1" onchange="recalc()">
-    </div>
-    <div class="tip">Her güne tıklayarak türünü değiştirin: Normal → Fazla mesai → Resmi tatil → Haftalık izin → Çalışmadı.</div>
-  </div>
-</div>
-
-<div id="step2" class="step-content">
-  <div class="section">
-    <div class="section-title">Maaş hesaplama detayı</div>
-    <div id="formulaArea"></div>
-    <div id="resultArea"></div>
-  </div>
+<div id="s2" class="scn"><div class="sec"><div class="st">Maaş hesaplama detayı</div><div id="fA"></div><div id="rA"></div></div></div>
 </div>
 
 <script>
-var types = ['normal','fazla','tatil','izin','off'];
-var typeLabels = {normal:'Normal',fazla:'F.Mesai',tatil:'Tatil',izin:'İzin',off:'—'};
-var dayData = {};
-var mode = 'net';
+let mode='net';
+const tp=['normal','fazla','tatil','izin','off'];
+const tl={normal:'Normal',fazla:'F.Mesai',tatil:'Tatil',izin:'İzin',off:'—'};
+let dd={};
+const NR=0.71491;
+function F(n){return Math.round(n).toLocaleString('tr-TR')}
+function F2(n){return n.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})}
 
-var publicHolidays = {'1-1':true,'4-23':true,'5-1':true,'5-19':true,'7-15':true,'8-30':true,'10-29':true};
+// Sabit resmi tatiller (her yıl aynı): ay(1-12), gün
+const fixedH=[[1,1],[4,23],[5,1],[5,19],[7,15],[8,30],[10,29]];
 
-function fmt(n){ return Math.round(n).toLocaleString('tr-TR'); }
-function getYear(){ return parseInt(document.getElementById('selYear').value); }
-function getMonth(){ return parseInt(document.getElementById('selMonth').value); }
+// Dini bayramlar ve değişken tatiller: yıl -> [[ay,gün], ...]
+// Ramazan Bayramı (3 gün) + Kurban Bayramı (4 gün)
+const religiousH={
+  2025:[[3,30],[3,31],[4,1],[6,6],[6,7],[6,8],[6,9]],
+  2026:[[3,20],[3,21],[3,22],[5,27],[5,28],[5,29],[5,30]],
+  2027:[[3,9],[3,10],[3,11],[5,16],[5,17],[5,18],[5,19]],
+  2028:[[2,27],[2,28],[2,29],[5,5],[5,6],[5,7],[5,8]],
+  2029:[[2,15],[2,16],[2,17],[4,24],[4,25],[4,26],[4,27]],
+  2030:[[2,4],[2,5],[2,6],[4,13],[4,14],[4,15],[4,16]]
+};
 
-function setMode(m){
-  mode = m;
-  document.getElementById('modeNet').classList.toggle('active', m==='net');
-  document.getElementById('modeBrut').classList.toggle('active', m==='brut');
-  document.getElementById('maasLabel').textContent = m==='net' ? 'Net maaş (TL)' : 'Brüt maaş (TL)';
-  document.getElementById('maasInput').value = m==='net' ? 17002 : 22104;
-  recalc();
-}
-
-function netToBrut(net){
-  var sgkOran = 0.14;
-  var issizlikOran = 0.01;
-  var gelirOran = 0.15;
-  var damgaOran = 0.00759;
-  // Net = Brüt - (Brüt*SGK) - (Brüt*İşsizlik) - ((Brüt - Brüt*SGK - Brüt*İşsizlik)*GelirVergisi) - (Brüt*Damga)
-  // Net = Brüt * [1 - SGK - İşsizlik - (1-SGK-İşsizlik)*GelirVergisi - Damga]
-  var kesintiFaktor = 1 - sgkOran - issizlikOran - (1 - sgkOran - issizlikOran)*gelirOran - damgaOran;
-  return net / kesintiFaktor;
-}
-
-function buildCalendar(){
-  var y = getYear(), m = getMonth();
-  var grid = document.getElementById('calendarGrid');
-  grid.innerHTML = '';
-  var headers = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
-  headers.forEach(function(h){ var d=document.createElement('div'); d.className='cal-header'; d.textContent=h; grid.appendChild(d); });
-  var firstDay = new Date(y, m, 1).getDay();
-  var startOffset = (firstDay === 0) ? 6 : firstDay - 1;
-  var daysInMonth = new Date(y, m+1, 0).getDate();
-  dayData = {};
-  for(var i=0;i<startOffset;i++){ var e=document.createElement('div'); e.className='day-cell empty'; grid.appendChild(e); }
-  for(var d=1;d<=daysInMonth;d++){
-    var dow = new Date(y,m,d).getDay();
-    var key = (m+1)+'-'+d;
-    var defaultType = 'normal';
-    if(dow===0) defaultType='izin';
-    else if(publicHolidays[key]) defaultType='tatil';
-    dayData[d] = defaultType;
-    var cell = document.createElement('div');
-    cell.className = 'day-cell type-'+defaultType;
-    cell.dataset.day = d;
-    cell.innerHTML = '<span class="day-num">'+d+'</span><span class="day-tag">'+typeLabels[defaultType]+'</span>';
-    (function(dd, cc){ cc.onclick = function(){ cycleType(dd, cc); }; })(d, cell);
-    grid.appendChild(cell);
+// Bayram isimleri
+const holidayNames={};
+function initNames(){
+  const rb={2025:[[3,30],[3,31],[4,1]],2026:[[3,20],[3,21],[3,22]],2027:[[3,9],[3,10],[3,11]],2028:[[2,27],[2,28],[2,29]],2029:[[2,15],[2,16],[2,17]],2030:[[2,4],[2,5],[2,6]]};
+  const kb={2025:[[6,6],[6,7],[6,8],[6,9]],2026:[[5,27],[5,28],[5,29],[5,30]],2027:[[5,16],[5,17],[5,18],[5,19]],2028:[[5,5],[5,6],[5,7],[5,8]],2029:[[4,24],[4,25],[4,26],[4,27]],2030:[[4,13],[4,14],[4,15],[4,16]]};
+  for(let y=2025;y<=2030;y++){
+    rb[y].forEach((d,i)=>{holidayNames[y+'-'+d[0]+'-'+d[1]]='Ramazan B. '+(i+1)+'.gün'});
+    kb[y].forEach((d,i)=>{holidayNames[y+'-'+d[0]+'-'+d[1]]='Kurban B. '+(i+1)+'.gün'});
   }
-  recalc();
+  for(let y=2025;y<=2030;y++){
+    holidayNames[y+'-1-1']='Yılbaşı';
+    holidayNames[y+'-4-23']='23 Nisan';
+    holidayNames[y+'-5-1']='1 Mayıs';
+    holidayNames[y+'-5-19']='19 Mayıs';
+    holidayNames[y+'-7-15']='15 Temmuz';
+    holidayNames[y+'-8-30']='30 Ağustos';
+    holidayNames[y+'-10-29']='29 Ekim';
+  }
+}
+initNames();
+
+function isHoliday(y,m,d){
+  for(const f of fixedH) if(f[0]===m+1&&f[1]===d) return true;
+  const rh=religiousH[y];
+  if(rh) for(const r of rh) if(r[0]===m+1&&r[1]===d) return true;
+  return false;
 }
 
-function cycleType(day, cell){
-  var cur = dayData[day];
-  var idx = types.indexOf(cur);
-  var next = types[(idx+1)%types.length];
-  dayData[day] = next;
-  cell.className = 'day-cell type-'+next;
-  cell.querySelector('.day-tag').textContent = typeLabels[next];
+function getHolidayName(y,m,d){
+  return holidayNames[y+'-'+(m+1)+'-'+d]||'Resmi Tatil';
+}
+
+function setMode(m){mode=m;document.getElementById('mN').classList.toggle('act',m==='net');document.getElementById('mB').classList.toggle('act',m==='brut');document.getElementById('mL').textContent=m==='net'?'Net maaş (TL)':'Brüt maaş (TL)';document.getElementById('mI').value=m==='net'?17002:22104;recalc()}
+
+function buildCal(){
+  const y=+document.getElementById('sY').value,m=+document.getElementById('sM').value;
+  const g=document.getElementById('cG');g.innerHTML='';
+  ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].forEach(h=>{const d=document.createElement('div');d.className='ch';d.textContent=h;g.appendChild(d)});
+  const fd=new Date(y,m,1).getDay(),off=fd===0?6:fd-1,dim=new Date(y,m+1,0).getDate();
+  dd={};
+  const tatilList=[];
+  for(let i=0;i<off;i++){const e=document.createElement('div');e.className='dc empty';g.appendChild(e)}
+  for(let d=1;d<=dim;d++){
+    const dow=new Date(y,m,d).getDay();
+    let t='normal';
+    if(dow===0) t='izin';
+    if(isHoliday(y,m,d)){t='tatil';tatilList.push(d+' '+getHolidayName(y,m,d))}
+    dd[d]=t;
+    const c=document.createElement('div');c.className='dc t-'+t[0];
+    c.innerHTML='<span class="dn">'+d+'</span><span class="dt">'+tl[t]+'</span>';
+    c.onclick=(()=>{const day=d;return function(){const nx=tp[(tp.indexOf(dd[day])+1)%tp.length];dd[day]=nx;this.className='dc t-'+nx[0];this.querySelector('.dt').textContent=tl[nx];recalc()}})();
+    g.appendChild(c);
+  }
+  const info=document.getElementById('tatilInfo');
+  if(tatilList.length>0){
+    info.innerHTML='<span style="font-weight:500">Bu aydaki resmi tatiller:</span> '+tatilList.join(', ');
+  } else {
+    info.innerHTML='<span style="color:var(--t3)">Bu ayda resmi tatil yok.</span>';
+  }
   recalc();
 }
 
 function recalc(){
-  var inputVal = parseFloat(document.getElementById('maasInput').value) || 0;
-  var fazlaSaat = parseFloat(document.getElementById('fazlaSaat').value) || 0;
+  const iv=parseFloat(document.getElementById('mI').value)||0,fs=parseFloat(document.getElementById('fS').value)||0;
+  let td=0;for(const d in dd)if(dd[d]==='tatil')td++;
+  let netMaas,brutMaas;
+  if(mode==='net'){netMaas=iv;brutMaas=iv/NR}else{brutMaas=iv;netMaas=iv*NR}
+  const gN=netMaas/30,sN=gN/7.5;
+  const fmN=fs*sN*1.5,ttN=td*gN,topN=netMaas+fmN+ttN;
+  const gB=brutMaas/30,topB=brutMaas+fs*(gB/7.5)*1.5+td*gB;
+  const sgk=brutMaas*0.14,issiz=brutMaas*0.01,matrah=brutMaas-sgk-issiz,gelir=matrah*0.15,damga=brutMaas*0.00759;
 
-  var brut;
-  if(mode === 'net'){
-    brut = Math.round(netToBrut(inputVal));
-  } else {
-    brut = inputVal;
-  }
+  document.getElementById('fA').innerHTML=`<div class="fbx">
+<div style="font-weight:500;color:var(--t2);font-size:11px;margin-bottom:8px;letter-spacing:.5px">${mode==='net'?'ADIM 1: NET MAAŞTAN BRÜT BULMA':'ADIM 1: BRÜT MAAŞTAN NET BULMA'}</div>
+${mode==='net'?`<div>Net maaş = <span class="hl">${F(iv)} TL</span></div><div>Brüt = ${F(iv)} / 0.71491 = <span class="hl">${F(brutMaas)} TL</span></div>`:`<div>Brüt maaş = <span class="hl">${F(iv)} TL</span></div><div>Net = ${F(iv)} x 0.71491 = <span class="hl">${F(netMaas)} TL</span></div>`}
+<div style="font-weight:500;color:var(--t2);font-size:11px;margin-top:12px;margin-bottom:8px;letter-spacing:.5px">ADIM 2: GÜNLÜK VE SAATLİK NET ÜCRET</div>
+<div>Günlük net = ${F(netMaas)} / 30 = <span class="hl">${F2(gN)} TL</span></div>
+<div>Saatlik net = ${F2(gN)} / 7.5 = <span class="hl">${F2(sN)} TL</span></div>
+<div style="font-weight:500;color:var(--t2);font-size:11px;margin-top:12px;margin-bottom:8px;letter-spacing:.5px">ADIM 3: FAZLA MESAİ (${fs} SAAT)</div>
+<div>${fs} x ${F2(sN)} x 1.5 = <span class="hl">${F(fmN)} TL</span></div>
+<div style="font-weight:500;color:var(--t2);font-size:11px;margin-top:12px;margin-bottom:8px;letter-spacing:.5px">ADIM 4: RESMİ TATİL (${td} GÜN)</div>
+<div>${td} x ${F2(gN)} = <span class="hl">${F(ttN)} TL</span></div>
+<div style="font-weight:500;color:var(--t2);font-size:11px;margin-top:12px;margin-bottom:8px;letter-spacing:.5px">ADIM 5: TOPLAM ELE GEÇEN</div>
+<div>${F(netMaas)} + ${F(fmN)} + ${F(ttN)} = <span class="hl" style="font-size:15px">${F(topN)} TL</span></div>
+</div>`;
 
-  var tatilDays = 0;
-  for(var d in dayData){ if(dayData[d]==='tatil') tatilDays++; }
+  document.getElementById('rA').innerHTML=`
+<div class="rc" style="margin-top:16px">
+<div class="rr" style="font-size:13px;color:var(--t2)"><span>${mode==='net'?'Girilen net maaş':'Girilen brüt maaş'}</span><span class="rv">${F(iv)} TL</span></div>
+${mode==='net'?`<div class="rr sub"><span>Hesaplanan brüt maaş</span><span class="rv">${F(brutMaas)} TL</span></div>`:`<div class="rr sub"><span>Hesaplanan net maaş</span><span class="rv">${F(netMaas)} TL</span></div>`}
+<div class="rr sub"><span>Günlük net ücret</span><span class="rv">${F2(gN)} TL</span></div>
+<div class="rr sub"><span>Saatlik net ücret</span><span class="rv">${F2(sN)} TL</span></div>
+</div>
+<div class="rc"><div class="rr" style="font-weight:500;color:var(--t2);font-size:13px">KESİNTİLER (BRÜT ÜZERİNDEN)</div>
+<div class="rr sub"><span>SGK işçi payı (%14)</span><span class="rv neg">-${F(sgk)} TL</span></div>
+<div class="rr sub"><span>İşsizlik sigortası (%1)</span><span class="rv neg">-${F(issiz)} TL</span></div>
+<div class="rr sub"><span>Gelir vergisi (%15)</span><span class="rv neg">-${F(gelir)} TL</span></div>
+<div class="rr sub"><span>Damga vergisi (%0.759)</span><span class="rv neg">-${F(damga)} TL</span></div></div>
+<div class="rc"><div class="rr" style="font-weight:500;color:var(--t2);font-size:13px">EK ÖDEMELER</div>
+<div class="rr sub"><span>Fazla mesai (${fs}sa x ${F2(sN)} x 1.5)</span><span class="rv pos">+${F(fmN)} TL</span></div>
+<div class="rr sub"><span>Resmi tatil (${td}gün x ${F2(gN)})</span><span class="rv pos">+${F(ttN)} TL</span></div></div>
+<div class="rc nc">
+<div class="rr" style="font-size:13px;color:var(--t2)"><span>Net maaş</span><span>${F(netMaas)} TL</span></div>
+<div class="rr" style="font-size:13px;color:var(--t2)"><span>+ Fazla mesai</span><span class="rv pos">+${F(fmN)} TL</span></div>
+<div class="rr" style="font-size:13px;color:var(--t2)"><span>+ Resmi tatil</span><span class="rv pos">+${F(ttN)} TL</span></div>
+<div class="rr tot"><span>Toplam ele geçen</span><span class="rv hl" style="font-size:20px">${F(topN)} TL</span></div></div>
+<div class="rc" style="margin-top:8px">
+<div class="rr" style="font-size:13px;color:var(--t2)"><span>Toplam brüt</span><span>${F(topB)} TL</span></div>
+<div class="rr" style="font-size:13px;color:var(--t2)"><span>İşveren SGK (%20.5)</span><span>${F(topB*.205)} TL</span></div>
+<div class="rr" style="font-size:13px;color:var(--t2)"><span>İşveren işsizlik (%2)</span><span>${F(topB*.02)} TL</span></div>
+<div class="rr" style="font-size:13px;font-weight:500"><span>İşverenin toplam maliyeti</span><span>${F(topB*1.225)} TL</span></div></div>`}
 
-  var gunlukUcret = brut / 30;
-  var saatlikUcret = gunlukUcret / 7.5;
-
-  var fazlaMesaiUcret = Math.round(fazlaSaat * saatlikUcret * 1.5);
-  var tatilUcret = Math.round(tatilDays * gunlukUcret * 2);
-
-  var brutToplam = Math.round(brut + fazlaMesaiUcret + tatilUcret);
-
-  var sgkIsci = Math.round(brutToplam * 0.14);
-  var issizlikIsci = Math.round(brutToplam * 0.01);
-  var gelirVergisiMatrah = brutToplam - sgkIsci - issizlikIsci;
-  var gelirVergisi = Math.round(gelirVergisiMatrah * 0.15);
-  var damgaVergisi = Math.round(brutToplam * 0.00759);
-  var toplamKesinti = sgkIsci + issizlikIsci + gelirVergisi + damgaVergisi;
-  var netMaas = brutToplam - toplamKesinti;
-
-  var sgkIsveren = Math.round(brutToplam * 0.205);
-  var issizlikIsveren = Math.round(brutToplam * 0.02);
-  var isverenToplam = brutToplam + sgkIsveren + issizlikIsveren;
-
-  var tipEl = document.getElementById('brutFromNet');
-  if(mode === 'net'){
-    tipEl.innerHTML = 'Girdiğiniz <b>'+fmt(inputVal)+' TL</b> net maaş için hesaplanan brüt maaş: <b>'+fmt(brut)+' TL</b>. Ek ödemeler (fazla mesai, tatil) brüt üzerinden hesaplanır.';
-  } else {
-    tipEl.innerHTML = 'Brüt maaş: <b>'+fmt(brut)+' TL</b>. Kesintiler düşüldükten sonra net maaş hesaplanacak.';
-  }
-
-  var fArea = document.getElementById('formulaArea');
-  fArea.innerHTML =
-    '<div class="formula-box">' +
-    (mode==='net' ? '<div>Net maaş: <span class="highlight">'+fmt(inputVal)+' TL</span> → Brüt maaş: <span class="highlight">'+fmt(brut)+' TL</span></div><div style="font-size:11px;color:var(--color-text-secondary);">Brüt = Net / (1 - %14 SGK - %1 İşsizlik - %15 Gelir Vergisi* - %0.759 Damga)</div><div style="margin-top:6px;"></div>' : '') +
-    '<div>Günlük ücret = '+fmt(brut)+' / 30 = <span class="highlight">'+fmt(gunlukUcret)+' TL</span></div>' +
-    '<div>Saatlik ücret = '+fmt(gunlukUcret)+' / 7.5 = <span class="highlight">'+fmt(saatlikUcret)+' TL</span></div>' +
-    '<div style="margin-top:6px;">Fazla mesai = '+fazlaSaat+' saat × '+fmt(saatlikUcret)+' × <span class="highlight">1.5</span> = <span class="highlight">'+fmt(fazlaMesaiUcret)+' TL</span></div>' +
-    '<div>Resmi tatil = '+tatilDays+' gün × '+fmt(gunlukUcret)+' × <span class="highlight">2</span> = <span class="highlight">'+fmt(tatilUcret)+' TL</span></div>' +
-    '</div>' +
-    '<div class="tip" style="margin-top:8px;">*Gelir vergisi ilk dilim (%15) üzerinden hesaplandı. Yıllık kümülatif matrah arttıkça üst dilimler devreye girer.</div>';
-
-  var rArea = document.getElementById('resultArea');
-  rArea.innerHTML =
-    '<div class="result-card" style="margin-top:16px;">' +
-    '<div class="result-row"><span>Temel brüt maaş</span><span class="result-val">'+fmt(brut)+' TL</span></div>' +
-    '<div class="result-row sub"><span>+ Fazla mesai ücreti</span><span class="result-val positive">+'+fmt(fazlaMesaiUcret)+' TL</span></div>' +
-    '<div class="result-row sub"><span>+ Resmi tatil ücreti</span><span class="result-val positive">+'+fmt(tatilUcret)+' TL</span></div>' +
-    '<div class="result-row" style="font-weight:500;"><span>Brüt toplam</span><span class="result-val">'+fmt(brutToplam)+' TL</span></div>' +
-    '</div>' +
-    '<div class="result-card">' +
-    '<div class="result-row" style="font-weight:500;color:var(--color-text-secondary);font-size:13px;"><span>KESİNTİLER</span><span></span></div>' +
-    '<div class="result-row sub"><span>SGK işçi payı (%14)</span><span class="result-val negative">-'+fmt(sgkIsci)+' TL</span></div>' +
-    '<div class="result-row sub"><span>İşsizlik sigortası işçi (%1)</span><span class="result-val negative">-'+fmt(issizlikIsci)+' TL</span></div>' +
-    '<div class="result-row sub"><span>Gelir vergisi (%15)</span><span class="result-val negative">-'+fmt(gelirVergisi)+' TL</span></div>' +
-    '<div class="result-row sub"><span>Damga vergisi (%0.759)</span><span class="result-val negative">-'+fmt(damgaVergisi)+' TL</span></div>' +
-    '<div class="result-row" style="font-weight:500;"><span>Toplam kesinti</span><span class="result-val negative">-'+fmt(toplamKesinti)+' TL</span></div>' +
-    '</div>' +
-    '<div class="result-card" style="border:2px solid var(--color-border-info);">' +
-    '<div class="result-row total"><span>Net ele geçen maaş</span><span class="result-val highlight" style="font-size:20px;">'+fmt(netMaas)+' TL</span></div>' +
-    '</div>' +
-    '<div class="result-card" style="margin-top:8px;">' +
-    '<div class="result-row" style="font-size:13px;color:var(--color-text-secondary);"><span>İşveren SGK payı (%20.5)</span><span>'+fmt(sgkIsveren)+' TL</span></div>' +
-    '<div class="result-row" style="font-size:13px;color:var(--color-text-secondary);"><span>İşveren işsizlik payı (%2)</span><span>'+fmt(issizlikIsveren)+' TL</span></div>' +
-    '<div class="result-row" style="font-size:13px;font-weight:500;"><span>İşverenin toplam maliyeti</span><span>'+fmt(isverenToplam)+' TL</span></div>' +
-    '</div>';
-}
-
-function showStep(n){
-  document.querySelectorAll('.step-content').forEach(function(el,i){ el.classList.toggle('active', i===n); });
-  document.querySelectorAll('.step-btn').forEach(function(el,i){ el.classList.toggle('active', i===n); });
-  if(n===2) recalc();
-}
-
-buildCalendar();
+function showStep(n){document.querySelectorAll('.scn').forEach((el,i)=>el.classList.toggle('act',i===n));document.querySelectorAll('.sb').forEach((el,i)=>el.classList.toggle('act',i===n));if(n===2)recalc()}
+buildCal();
 </script>
-
 </body>
 </html>
