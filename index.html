@@ -16,7 +16,7 @@
 <div class="mtg"><button class="mb act" id="mN" onclick="setMode('net')">Net maaş gir</button><button class="mb" id="mB" onclick="setMode('brut')">Brüt maaş gir</button></div>
 <div class="sn"><button class="sb act" onclick="showStep(0)">1. Temel bilgiler</button><button class="sb" onclick="showStep(1)">2. Takvim girişi</button><button class="sb" onclick="showStep(2)">3. Hesaplama</button></div>
 
-<div id="s0" class="scn act"><div class="sec"><div class="st">Çalışan bilgileri</div><div class="row"><label id="mL">Net maaş (TL)</label><input type="number" id="mI" value="17002" step="100" onchange="recalc()"></div><div class="row"><label>Yıl / Ay</label><select id="sY" onchange="buildCal();recalc();"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select><select id="sM" onchange="buildCal();recalc();"><option value="0">Ocak</option><option value="1">Şubat</option><option value="2">Mart</option><option value="3">Nisan</option><option value="4">Mayıs</option><option value="5">Haziran</option><option value="6">Temmuz</option><option value="7">Ağustos</option><option value="8">Eylül</option><option value="9">Ekim</option><option value="10">Kasım</option><option value="11">Aralık</option></select></div><div class="tip" id="mT">Günlük net ücret = net maaş / 30. Ek ödemeler bu günlük ücret üzerinden hesaplanır. Resmi tatiller ve bayramlar takvimde otomatik işaretlenir.</div></div></div>
+<div id="s0" class="scn act"><div class="sec"><div class="st">Çalışan bilgileri</div><div class="row"><label id="mL">Net maaş (TL)</label><input type="number" id="mI" value="17002" step="100" min="0" onchange="recalc()"></div><div class="row"><label>Yıl / Ay</label><select id="sY" onchange="buildCal();recalc();"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select><select id="sM" onchange="buildCal();recalc();"><option value="0">Ocak</option><option value="1">Şubat</option><option value="2">Mart</option><option value="3">Nisan</option><option value="4">Mayıs</option><option value="5">Haziran</option><option value="6">Temmuz</option><option value="7">Ağustos</option><option value="8">Eylül</option><option value="9">Ekim</option><option value="10">Kasım</option><option value="11">Aralık</option></select></div><div class="tip" id="mT">Günlük net ücret = net maaş / 30. Ek ödemeler bu günlük ücret üzerinden hesaplanır. Resmi tatiller ve bayramlar takvimde otomatik işaretlenir.</div></div></div>
 
 <div id="s1" class="scn"><div class="sec"><div class="st">Aylık takvim <span class="bdg">Tıklayarak değiştirin</span></div><div class="leg"><div class="li"><div class="ld" style="background:var(--bg1);border:.5px solid var(--bl)"></div>Normal</div><div class="li"><div class="ld" style="background:var(--fb)"></div>F.Mesai</div><div class="li"><div class="ld" style="background:var(--tb)"></div>R.Tatil</div><div class="li"><div class="ld" style="background:var(--ib)"></div>H.İzin</div><div class="li"><div class="ld" style="background:var(--bg2)"></div>Yok</div></div><div id="cG" class="cal"></div><div id="tatilInfo" style="font-size:12px;color:var(--t2);margin-bottom:12px"></div><div class="row" style="margin-top:8px"><label>Fazla mesai saat (toplam)</label><input type="number" id="fS" value="0" min="0" step="1" onchange="recalc()"></div><div class="tip">Resmi tatiller ve bayramlar otomatik işaretlendi. İstediğiniz günü tıklayarak değiştirebilirsiniz.</div></div></div>
 
@@ -29,8 +29,8 @@ const tp=['normal','fazla','tatil','izin','off'];
 const tl={normal:'Normal',fazla:'F.Mesai',tatil:'Tatil',izin:'İzin',off:'—'};
 let dd={};
 const NR=0.71491;
-function F(n){return Math.round(n).toLocaleString('tr-TR')}
-function F2(n){return n.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function F(n){if(!isFinite(n))return '0';return Math.round(n).toLocaleString('tr-TR')}
+function F2(n){if(!isFinite(n))return '0,00';return n.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})}
 
 // Sabit resmi tatiller (her yıl aynı): ay(1-12), gün
 const fixedH=[[1,1],[4,23],[5,1],[5,19],[7,15],[8,30],[10,29]];
@@ -109,7 +109,8 @@ function buildCal(){
 }
 
 function recalc(){
-  const iv=parseFloat(document.getElementById('mI').value)||0,fs=parseFloat(document.getElementById('fS').value)||0;
+  const rawIv=parseFloat(document.getElementById('mI').value),rawFs=parseFloat(document.getElementById('fS').value);
+  const iv=isFinite(rawIv)&&rawIv>=0?rawIv:0,fs=isFinite(rawFs)&&rawFs>=0?rawFs:0;
   let td=0;for(const d in dd)if(dd[d]==='tatil')td++;
   let netMaas,brutMaas;
   if(mode==='net'){netMaas=iv;brutMaas=iv/NR}else{brutMaas=iv;netMaas=iv*NR}
